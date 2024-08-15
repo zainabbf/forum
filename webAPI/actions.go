@@ -97,6 +97,14 @@ func CommentsApi(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	now := time.Now()
 	postIdInt, _ := strconv.Atoi(postId)
+
+	// Check if content is empty or have a white space
+	if strings.TrimSpace(content) == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Content cannot be empty or just whitespace"))
+		return
+	}
+
 	databaseAPI.AddComment(database, username, postIdInt, content, now)
 	fmt.Println("Comment created by " + username + " on post " + postId + " at " + now.Format("2006-01-02 15:04:05"))
 	http.Redirect(w, r, "/post?id="+postId, http.StatusFound)
@@ -326,7 +334,8 @@ func handleCommentDownvote(w http.ResponseWriter, username string, commentId int
 // CommentVoteHandler handles the voting on a post via API
 func CommentVoteHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		//http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
 
